@@ -1,0 +1,39 @@
+/*
+stock-notification package sens stock notifications when certain indicators
+are triggered Copyright (C) 2019 Tom Cocozzello
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+syntax = "proto3";
+package stockdata;
+
+// Server Interface
+service StockData {
+  // The Aggregator uses this to stream data to the server
+  //
+  // StockRecorder accepts a stream of stocks to save and send to the engine
+  rpc StockRecorder(stream Stock) returns (StockSummary) {}
+}
+
+message Stock {
+  string name = 1;
+  float price = 2;
+}
+
+message StockSummary {
+  int32 stocks_received = 1;
+
+  int32 elapsed_time = 2;
+}
