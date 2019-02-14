@@ -26,11 +26,13 @@ import (
 	"net"
 	"time"
 
-	"google.golang.org/grpc"
+	"github.com/google/uuid"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/testdata"
 
+	storage "github.com/cocoztho000/stock-notifications/etcd"
 	pb "github.com/cocoztho000/stock-notifications/stockdata"
 )
 
@@ -49,6 +51,10 @@ type routeGuideServer struct {
 func (s *routeGuideServer) StockRecorder(stream pb.StockData_StockRecorderServer) error {
 	var stockCount int32
 	var totalStockPrice float32
+
+	// Initialize Etcd
+	etcd := storage.NewEtcd()
+
 	// var lastStock *pb.Stock
 	startTime := time.Now()
 	for {
@@ -63,6 +69,12 @@ func (s *routeGuideServer) StockRecorder(stream pb.StockData_StockRecorderServer
 		if err != nil {
 			return err
 		}
+
+		err = etcd.PutWithTimeout(fmt.Sprint("/test/tom/%s/%s", uuid.Must(uuid.NewRandom()), stock.Name), fmt.Sprintf("%f", stock.Price))
+		if err != nil {
+			fmt.Println("Error writting to etcd: " + err.Error())
+		}
+
 		stockCount++
 		totalStockPrice += stock.Price
 		// if lastStock != nil {
